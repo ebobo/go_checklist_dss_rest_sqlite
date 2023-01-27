@@ -7,11 +7,13 @@ import (
 	"syscall"
 
 	"github.com/ebobo/dss_checklist/pkg/server"
+	sqlitestore "github.com/ebobo/dss_checklist/pkg/store/sqlite"
 	"github.com/jessevdk/go-flags"
 )
 
 var opt struct {
-	HTTPAddr string `short:"h" long:"http-addr" default:":9099" description:"http listen address" required:"yes"`
+	HTTPAddr   string `short:"h" long:"http-addr" default:":9099" description:"http listen address" required:"yes"`
+	SqliteFile string `long:"sqlite-file" env:"SQLITE_FILE" default:"items.db" description:"sqlite file"`
 }
 
 func main() {
@@ -20,8 +22,14 @@ func main() {
 		log.Fatalf("error parsing flags: %v", err)
 	}
 
+	db, err := sqlitestore.New(opt.SqliteFile)
+	if err != nil {
+		log.Fatalf("error connect to sqlite: %v", err)
+	}
+
 	server := server.New(server.Config{
 		HTTPListenAddr: opt.HTTPAddr,
+		DB:             db,
 	})
 
 	e := server.Start()

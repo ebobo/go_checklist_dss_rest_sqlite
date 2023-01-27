@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"sync"
+
+	sqlitestore "github.com/ebobo/dss_checklist/pkg/store/sqlite"
 )
 
 // Server takes care of instantiating and running service and other dependencies.
@@ -13,6 +15,7 @@ type Server struct {
 	httpStopped    *sync.WaitGroup
 	ctx            context.Context
 	cancel         context.CancelFunc
+	db             *sqlitestore.SqliteStore
 }
 
 // Config is the server configuration
@@ -20,6 +23,7 @@ type Config struct {
 	GRPCListenAddr string
 	HTTPListenAddr string
 	MSGPRCAddr     string
+	DB             *sqlitestore.SqliteStore
 }
 
 func New(c Config) *Server {
@@ -27,6 +31,7 @@ func New(c Config) *Server {
 		httpListenAddr: c.HTTPListenAddr,
 		httpStarted:    &sync.WaitGroup{},
 		httpStopped:    &sync.WaitGroup{},
+		db:             c.DB,
 	}
 }
 
@@ -51,4 +56,5 @@ func (s *Server) Shutdown() {
 		s.cancel()
 	}
 	s.httpStopped.Wait()
+	s.db.Close()
 }
