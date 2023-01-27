@@ -13,8 +13,9 @@ import (
 
 	_ "embed" // for side effect
 
-	"github.com/jmoiron/sqlx"
 	_ "modernc.org/sqlite" // for side effect
+
+	"github.com/jmoiron/sqlx"
 )
 
 // errors form database
@@ -49,16 +50,16 @@ var (
 
 // New creates a new sqliteStore instance. If the database does not exist
 // it is created.
-func New(dbSpec string) (*SqliteStore, error) {
-	db, err := openDB(dbSpec)
+func New(dbSpec string) (*SqliteStore, bool, error) {
+	db, created, err := openDB(dbSpec)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	return &SqliteStore{
 		dbSpec: dbSpec,
 		db:     db,
-	}, nil
+	}, created, nil
 }
 
 // Close the sqliteStore.
@@ -66,7 +67,7 @@ func (s *SqliteStore) Close() error {
 	return s.db.Close()
 }
 
-func openDB(dbSpec string) (*sqlx.DB, error) {
+func openDB(dbSpec string) (*sqlx.DB, bool, error) {
 	// If the file does not already exist or the database is not an in-memory database
 	// we need to create the schema.
 	dbNeedsCreation := true
@@ -77,23 +78,23 @@ func openDB(dbSpec string) (*sqlx.DB, error) {
 
 	db, err := sqlx.Open("sqlite", dbSpec)
 	if err != nil {
-		return nil, fmt.Errorf("unable to open database: %w", err)
+		return nil, false, fmt.Errorf("unable to open database: %w", err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		return nil, fmt.Errorf("unable to ping database: %w", err)
+		return nil, false, fmt.Errorf("unable to ping database: %w", err)
 	}
 
 	if dbNeedsCreation {
 		err := createSchema(db)
 		if err != nil {
-			return nil, fmt.Errorf("unable to create schema: %w", err)
+			return nil, false, fmt.Errorf("unable to create schema: %w", err)
 		}
 		log.Printf("created database [%s]", dbSpec)
 	}
 
-	return db, nil
+	return db, dbNeedsCreation, nil
 }
 
 // createSchema populates a schema into an sqlx database handle

@@ -14,7 +14,7 @@ func (s *SqliteStore) AddItem(item model.Item) error {
 			name,
 			position,
 			tag,
-			status,)
+			status)
 		 VALUES(
 			:id,
 			:name,
@@ -54,3 +54,26 @@ func (s *SqliteStore) DeleteItem(id string) error {
 	_, err := s.db.Exec("DELETE FROM items WHERE id = ?", id)
 	return err
 }
+
+// func (s *SqliteStore) PrintItems() error {
+// 	s.mu.RLock()
+// 	defer s.mu.RUnlock()
+
+// 	log.Println("Printing items")
+
+// 	row, err := s.db.Query("SELECT * FROM items ORDER BY name")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer row.Close()
+// 	for row.Next() { // Iterate and fetch the records from result cursor
+// 		var id string
+// 		var name string
+// 		var position int
+// 		var tag string
+// 		var status bool
+// 		row.Scan(&id, &name, &position, &tag, &status)
+// 		log.Println("Item: ", id, " ", name)
+// 	}
+// 	return nil
+// }
