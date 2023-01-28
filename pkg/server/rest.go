@@ -171,7 +171,7 @@ func (s *Server) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	if updateItem.Name != "" {
 		item.Name = updateItem.Name
 	}
-	if updateItem.Position != 0 {
+	if updateItem.Position >= 0 {
 		item.Position = updateItem.Position
 	}
 	item.Status = updateItem.Status
@@ -180,7 +180,7 @@ func (s *Server) UpdateItem(w http.ResponseWriter, r *http.Request) {
 		item.Tag = updateItem.Tag
 	}
 
-	log.Println("update item", item.Name, item.Position, item.Status, item.Tag)
+	//log.Println("update item", item.Name, item.Position, item.Status, item.Tag)
 
 	err = s.db.UpdateItem(item)
 
