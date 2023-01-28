@@ -29,7 +29,7 @@ func (s *SqliteStore) GetItem(id string) (model.Item, error) {
 	defer s.mu.RUnlock()
 
 	var item model.Item
-	return item, s.db.QueryRowx("SELECT * FROM keys WHERE id = ?", id).StructScan(&item)
+	return item, s.db.QueryRowx("SELECT * FROM items WHERE id = ?", id).StructScan(&item)
 }
 
 func (s *SqliteStore) SetItemStatus(id string, status bool) error {
@@ -37,6 +37,20 @@ func (s *SqliteStore) SetItemStatus(id string, status bool) error {
 	defer s.mu.Unlock()
 
 	return CheckForZeroRowsAffected(s.db.Exec("UPDATE items SET status = ? WHERE id = ?", status, id))
+}
+
+func (s *SqliteStore) UpdateItem(item model.Item) error {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	return CheckForZeroRowsAffected(s.db.NamedExec(
+		`UPDATE items SET 
+			name = :name, 
+			position = :position,
+			tag = :tag,
+			status = :status
+		WHERE 
+			id = :id`, item))
 }
 
 func (s *SqliteStore) ListItems() ([]model.Item, error) {

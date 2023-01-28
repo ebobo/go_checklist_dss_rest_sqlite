@@ -30,18 +30,13 @@ func main() {
 
 	//some test data
 	if created {
-		db.AddItem(model.Item{ID: "01", Name: "Door-A", Position: 0, Tag: "door-a", Status: false})
-		db.AddItem(model.Item{ID: "02", Name: "Door-B", Position: 1, Tag: "door-b", Status: false})
-		db.AddItem(model.Item{ID: "03", Name: "Door-C", Position: 2, Tag: "door-c", Status: false})
-		db.AddItem(model.Item{ID: "04", Name: "Door-D", Position: 3, Tag: "door-d", Status: false})
+		db.AddItem(model.Item{ID: "01", Name: "Door-A", Position: 1, Tag: "door-a", Status: false})
+		db.AddItem(model.Item{ID: "02", Name: "Door-B", Position: 2, Tag: "door-b", Status: false})
+		db.AddItem(model.Item{ID: "03", Name: "Door-C", Position: 3, Tag: "door-c", Status: false})
+		db.AddItem(model.Item{ID: "04", Name: "Door-D", Position: 4, Tag: "door-d", Status: false})
 	} else {
 		log.Println("db already exists")
 	}
-	items, err := db.ListItems()
-	if err != nil {
-		log.Fatalf("error list items: %v", err)
-	}
-	log.Println("Items in db:", items[0].ID, items[0].Name, items[0].Position, items[0].Tag, items[0].Status)
 
 	server := server.New(server.Config{
 		HTTPListenAddr: opt.HTTPAddr,
